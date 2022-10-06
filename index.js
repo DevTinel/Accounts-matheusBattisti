@@ -20,12 +20,17 @@ function operator() {
     .then((answer) => {
       const action = answer['action'];
       console.log(action);
-      // if (action === 'Criar conta') createAccount();
       switch (action) {
         case 'Criar conta':
           createAccount();
           break;
-
+        case 'Consultar saldo':
+          break;
+        case 'Depositar':
+          break;
+        case 'Sair':
+          Exit();
+          break;
         default:
           console.log(
             chalk.bgRed('Opção inválida!! Escolha umas das opções acima'),
@@ -39,6 +44,44 @@ function operator() {
 }
 
 function createAccount() {
-  console.log(chalk.bgGreen.black('Parabens por escolher o nosso banco!'));
-  console.log(chalk.green('Defina as opções da sua conta a seguir.'));
+  console.log(chalk.bgGreen.bold('Parabens por escolher o nosso banco!'));
+  console.log(chalk.bgGreen.bold('Defina as opções da sua conta a seguir.'));
+  buildAccount();
+}
+
+function buildAccount() {
+  inquirer
+    .prompt([
+      {
+        name: 'accountName',
+        message: 'Digite um nome para sua conta',
+      },
+    ])
+    .then(({ accountName }) => {
+      const name = accountName;
+      console.info(name);
+      if (!fs.existsSync('accounts')) {
+        fs.mkdirSync('accounts');
+      }
+      if (fs.existsSync(`accounts/${name}.json`)) {
+        console.log(
+          chalk.bgRed.black('Esta conta já existe, escolha outro nome'),
+        );
+        buildAccount();
+        return;
+      }
+      fs.writeFileSync(`accounts/${name}.json`, '{"ballance":0}', (err) => {
+        console.log(err);
+      });
+      console.log(chalk.green('Sua conta foi criada'));
+      operator();
+    })
+    .catch((erro) => {
+      console.log(err);
+    });
+}
+
+function Exit() {
+  console.log(chalk.bgBlue.black('Obrigado por usar o Accounts '));
+  process.exit();
 }
